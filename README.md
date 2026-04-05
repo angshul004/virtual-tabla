@@ -2,10 +2,6 @@
 
 A browser-based virtual tabla instrument built with React and Vite.
 
-# Screenshot
-<img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/118f67f0-a585-4e6f-b3d3-8ad931831b98" />
-
-
 Users can:
 - Play tabla bols with keyboard keys
 - Use real tabla audio samples
@@ -95,6 +91,49 @@ Preview the production build:
 npm run preview
 ```
 
+## Deploy To GitHub Pages From Main
+
+This project is configured to deploy using GitHub Pages settings from the `main` branch and the `/docs` folder.
+
+Published URL:
+
+```text
+https://angshul004.github.io/virtual-tabla/
+```
+
+### One-time GitHub setup
+
+1. Push this project to your `main` branch.
+2. Open the repository on GitHub.
+3. Go to `Settings` -> `Pages`.
+4. Under `Build and deployment`, choose:
+   - `Source`: `Deploy from a branch`
+   - `Branch`: `main`
+   - `Folder`: `/docs`
+5. Save.
+
+### Each time you want to publish updates
+
+1. Build the site:
+
+```bash
+npm run build
+```
+
+2. Commit the updated `docs` folder and your source changes:
+
+```bash
+git add .
+git commit -m "Update site"
+git push origin main
+```
+
+After GitHub finishes publishing, your site will be live at:
+
+```text
+https://angshul004.github.io/virtual-tabla/
+```
+
 ## Tech Stack
 
 - React
@@ -119,6 +158,8 @@ public/
   assets/
     audio/
     images/
+docs/
 index.html
 package.json
+vite.config.js
 ```
