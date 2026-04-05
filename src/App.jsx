@@ -24,15 +24,28 @@ function formatDuration(ms) {
   return `${minutes}:${seconds}`;
 }
 
-function formatSeconds(secondsValue) {
-  return formatDuration(secondsValue * 1000);
-}
-
-function TablaImage({ isBayanActive, isDayanActive }) {
+function TablaImage({ isBayanActive, isDayanActive, sparkleBursts }) {
   return (
     <div className="tabla-image-stage">
       <div className={`drum-hit-glow left ${isBayanActive ? "is-active" : ""}`} />
       <div className={`drum-hit-glow right ${isDayanActive ? "is-active" : ""}`} />
+      <div className="sparkle-layer" aria-hidden="true">
+        {sparkleBursts.map((sparkle) => (
+          <span
+            key={sparkle.id}
+            className={`sparkle-bol ${sparkle.side}`}
+            style={{
+              "--sparkle-x": `${sparkle.xOffset}px`,
+              "--sparkle-delay": `${sparkle.delay}ms`,
+              "--sparkle-rotate": `${sparkle.rotate}deg`,
+              "--sparkle-glow": sparkle.color
+            }}
+          >
+            <span className="sparkle-dot" />
+            <span className="sparkle-label">{sparkle.label}</span>
+          </span>
+        ))}
+      </div>
       <img
         src={assetUrl("assets/images/tabla_transparent.png")}
         alt="Virtual tabla"
@@ -245,6 +258,7 @@ function RecordingsModal({ recordings, onClose }) {
 
 function App() {
   const [activeStrokeIds, setActiveStrokeIds] = useState([]);
+  const [sparkleBursts, setSparkleBursts] = useState([]);
   const [started, setStarted] = useState(false);
   const [keyBindings, setKeyBindings] = useState(DEFAULT_BINDINGS);
   const [draftBindings, setDraftBindings] = useState(DEFAULT_BINDINGS);
@@ -258,6 +272,7 @@ function App() {
   const [supportsRecording, setSupportsRecording] = useState(true);
   const audioRefs = useRef(new Map());
   const releaseTimers = useRef(new Map());
+  const sparkleTimersRef = useRef(new Map());
   const audioContextRef = useRef(null);
   const mediaDestinationRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -307,6 +322,7 @@ function App() {
         audio.pause();
       });
       releaseTimers.current.forEach((timer) => window.clearTimeout(timer));
+      sparkleTimersRef.current.forEach((timer) => window.clearTimeout(timer));
       if (recordingIntervalRef.current) {
         window.clearInterval(recordingIntervalRef.current);
       }
@@ -377,6 +393,26 @@ function App() {
     return context;
   };
 
+  const spawnSparkleBurst = (stroke) => {
+    const burstId = `${stroke.id}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const sparkle = {
+      id: burstId,
+      label: stroke.label,
+      side: stroke.drum === "bayan" ? "left" : "right",
+      color: stroke.glow,
+      xOffset: Math.round((Math.random() - 0.5) * 48),
+      delay: Math.round(Math.random() * 90),
+      rotate: Math.round((Math.random() - 0.5) * 18)
+    };
+
+    setSparkleBursts((current) => [...current, sparkle]);
+    const timer = window.setTimeout(() => {
+      setSparkleBursts((current) => current.filter((item) => item.id !== burstId));
+      sparkleTimersRef.current.delete(burstId);
+    }, 1050);
+    sparkleTimersRef.current.set(burstId, timer);
+  };
+
   const playStroke = async (stroke) => {
     const audio = audioRefs.current.get(stroke.id);
     await ensureAudioPipeline();
@@ -386,6 +422,7 @@ function App() {
       audio.play().catch(() => {});
     }
 
+    spawnSparkleBurst(stroke);
     setActiveStrokeIds((current) => (current.includes(stroke.id) ? current : [...current, stroke.id]));
     window.clearTimeout(releaseTimers.current.get(stroke.id));
 
@@ -584,7 +621,11 @@ function App() {
 
           <div className="instrument-stage">
             <div className={`stage-surface ${activeStrokeIds.length ? "pulse" : ""}`}>
-              <TablaImage isBayanActive={isBayanActive} isDayanActive={isDayanActive} />
+              <TablaImage
+                isBayanActive={isBayanActive}
+                isDayanActive={isDayanActive}
+                sparkleBursts={sparkleBursts}
+              />
             </div>
           </div>
 
