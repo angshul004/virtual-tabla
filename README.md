@@ -3,6 +3,7 @@
 A browser-based virtual tabla instrument built with React and Vite.
 
 # Screenshot
+<img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/118f67f0-a585-4e6f-b3d3-8ad931831b98" />
 
 
 Users can:
