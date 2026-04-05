@@ -1,6 +1,6 @@
 # Virtual Tabla
 
-A browser-based virtual tabla instrument built with React and Vite.
+A browser-based virtual tabla instrument built with React and Vite. works on Phone and Desktop
 
 # Screenshot
 <img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/c92a8e01-1142-493b-a43b-983072cf2851" />
@@ -58,9 +58,8 @@ npm run dev
 
 Published URL:
 
-```text
 https://angshul004.github.io/virtual-tabla/
-```
+
 
 ## Tech Stack
 
