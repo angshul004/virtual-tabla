@@ -2,6 +2,10 @@
 
 A browser-based virtual tabla instrument built with React and Vite.
 
+# Screenshot
+<img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/c92a8e01-1142-493b-a43b-983072cf2851" />
+
+
 Users can:
 - Play tabla bols with keyboard keys
 - Use real tabla audio samples
