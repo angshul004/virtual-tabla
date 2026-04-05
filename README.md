@@ -37,37 +37,6 @@ Left hand:
 Tip:
 - Press Ge + Na together to play Dha
 
-## Audio Files
-
-Place your audio files in:
-
-```text
-public/assets/audio
-```
-
-Expected filenames:
-
-```text
-na.wav
-tin.wav
-te.wav
-tte.wav
-ge.wav
-ghe.wav
-ke.wav
-```
-
-## Images
-
-Image assets are stored in:
-
-```text
-public/assets/images
-```
-
-Current project images:
-- `tabla.webp`
-- `tabla_transparent.png`
 
 ## Getting Started
 
@@ -83,52 +52,15 @@ Run the development server:
 npm run dev
 ```
 
-Build for production:
 
-```bash
-npm run build
-```
+## Open the app from this link
 
-Preview the production build:
-
-```bash
-npm run preview
-```
-
-## Deploy To GitHub Pages With GitHub Actions
-
-This project is configured to deploy with GitHub Actions, so you do not need to commit a `docs` folder or any copied build assets.
 
 Published URL:
 
 ```text
 https://angshul004.github.io/virtual-tabla/
 ```
-
-### One-time GitHub setup
-
-1. Push this project to your `main` branch.
-2. Open the repository on GitHub.
-3. Go to `Settings` -> `Pages`.
-4. Under `Build and deployment`, set:
-   - `Source`: `GitHub Actions`
-5. Save.
-
-### How publishing works
-
-- Every push to `main` triggers the workflow in `.github/workflows/deploy.yml`.
-- GitHub installs dependencies, builds the app, and deploys the generated `dist` folder.
-- Your source assets remain only in the normal project folders.
-
-### Publish updates
-
-```bash
-git add .
-git commit -m "Update site"
-git push origin main
-```
-
-After the workflow finishes, your site will update automatically.
 
 ## Tech Stack
 

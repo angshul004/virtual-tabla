@@ -55,6 +55,21 @@ function TablaImage({ isBayanActive, isDayanActive, sparkleBursts }) {
   );
 }
 
+function MobileNotice() {
+  return (
+    <section className="mobile-notice-screen">
+      <div className="mobile-notice-card">
+        <p className="eyebrow">Virtual Tabla</p>
+        <h1>This app works on desktop.</h1>
+        <p className="description">
+          The instrument is designed for keyboard play, so please open this site
+          on a laptop or desktop computer for the full experience.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function HomeScreen({ onStart }) {
   return (
     <section className="home-screen">
@@ -260,6 +275,7 @@ function App() {
   const [activeStrokeIds, setActiveStrokeIds] = useState([]);
   const [sparkleBursts, setSparkleBursts] = useState([]);
   const [started, setStarted] = useState(false);
+  const [isMobileBlocked, setIsMobileBlocked] = useState(false);
   const [keyBindings, setKeyBindings] = useState(DEFAULT_BINDINGS);
   const [draftBindings, setDraftBindings] = useState(DEFAULT_BINDINGS);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -304,6 +320,24 @@ function App() {
 
     return new Set(Object.keys(counts).filter((key) => counts[key] > 1));
   }, [draftBindings]);
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia("(max-width: 900px), (pointer: coarse)");
+    const userAgentBlocked = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+    const updateBlockedState = () => {
+      setIsMobileBlocked(mobileQuery.matches || userAgentBlocked);
+    };
+
+    updateBlockedState();
+    if (mobileQuery.addEventListener) {
+      mobileQuery.addEventListener("change", updateBlockedState);
+      return () => mobileQuery.removeEventListener("change", updateBlockedState);
+    }
+
+    mobileQuery.addListener(updateBlockedState);
+    return () => mobileQuery.removeListener(updateBlockedState);
+  }, []);
 
   useEffect(() => {
     STROKES.forEach((stroke) => {
@@ -568,6 +602,16 @@ function App() {
   const isDayanActive = strokesWithBindings.some(
     (stroke) => stroke.drum === "dayan" && activeStrokeIds.includes(stroke.id)
   );
+
+  if (isMobileBlocked) {
+    return (
+      <main className="app-shell">
+        <div className="ambient ambient-left" />
+        <div className="ambient ambient-right" />
+        <MobileNotice />
+      </main>
+    );
+  }
 
   if (!started) {
     return (
