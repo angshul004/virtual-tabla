@@ -91,9 +91,9 @@ Preview the production build:
 npm run preview
 ```
 
-## Deploy To GitHub Pages From Main
+## Deploy To GitHub Pages With GitHub Actions
 
-This project is configured to deploy using GitHub Pages settings from the `main` branch and the `/docs` folder.
+This project is configured to deploy with GitHub Actions, so you do not need to commit a `docs` folder or any copied build assets.
 
 Published URL:
 
@@ -106,21 +106,17 @@ https://angshul004.github.io/virtual-tabla/
 1. Push this project to your `main` branch.
 2. Open the repository on GitHub.
 3. Go to `Settings` -> `Pages`.
-4. Under `Build and deployment`, choose:
-   - `Source`: `Deploy from a branch`
-   - `Branch`: `main`
-   - `Folder`: `/docs`
+4. Under `Build and deployment`, set:
+   - `Source`: `GitHub Actions`
 5. Save.
 
-### Each time you want to publish updates
+### How publishing works
 
-1. Build the site:
+- Every push to `main` triggers the workflow in `.github/workflows/deploy.yml`.
+- GitHub installs dependencies, builds the app, and deploys the generated `dist` folder.
+- Your source assets remain only in the normal project folders.
 
-```bash
-npm run build
-```
-
-2. Commit the updated `docs` folder and your source changes:
+### Publish updates
 
 ```bash
 git add .
@@ -128,11 +124,7 @@ git commit -m "Update site"
 git push origin main
 ```
 
-After GitHub finishes publishing, your site will be live at:
-
-```text
-https://angshul004.github.io/virtual-tabla/
-```
+After the workflow finishes, your site will update automatically.
 
 ## Tech Stack
 
@@ -158,7 +150,9 @@ public/
   assets/
     audio/
     images/
-docs/
+.github/
+  workflows/
+    deploy.yml
 index.html
 package.json
 vite.config.js

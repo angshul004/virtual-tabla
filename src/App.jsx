@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+const assetUrl = (path) => `${import.meta.env.BASE_URL}${path}`;
+
 const STROKES = [
-  { id: "na", label: "Na", key: "M", drum: "dayan", hand: "Right", file: "/assets/audio/na.wav", glow: "#f7b267" },
-  { id: "tin", label: "Tin", key: "J", drum: "dayan", hand: "Right", file: "/assets/audio/tin.wav", glow: "#9cc5a1" },
-  { id: "te", label: "Te", key: "L", drum: "dayan", hand: "Right", file: "/assets/audio/te.wav", glow: "#7fb7be" },
-  { id: "tte", label: "Tte", key: "K", drum: "dayan", hand: "Right", file: "/assets/audio/tte.wav", glow: "#f6bd60" },
-  { id: "ge", label: "Ge", key: "X", drum: "bayan", hand: "Left", file: "/assets/audio/ge.wav", glow: "#d8a7ca" },
-  { id: "ghe", label: "Ghe", key: "S", drum: "bayan", hand: "Left", file: "/assets/audio/ghe.wav", glow: "#b8c0ff" },
-  { id: "ke", label: "Ke", key: "A", drum: "bayan", hand: "Left", file: "/assets/audio/ke.wav", glow: "#f4845f" }
+  { id: "na", label: "Na", key: "M", drum: "dayan", hand: "Right", file: assetUrl("assets/audio/na.wav"), glow: "#f7b267" },
+  { id: "tin", label: "Tin", key: "J", drum: "dayan", hand: "Right", file: assetUrl("assets/audio/tin.wav"), glow: "#9cc5a1" },
+  { id: "te", label: "Te", key: "L", drum: "dayan", hand: "Right", file: assetUrl("assets/audio/te.wav"), glow: "#7fb7be" },
+  { id: "tte", label: "Tte", key: "K", drum: "dayan", hand: "Right", file: assetUrl("assets/audio/tte.wav"), glow: "#f6bd60" },
+  { id: "ge", label: "Ge", key: "X", drum: "bayan", hand: "Left", file: assetUrl("assets/audio/ge.wav"), glow: "#d8a7ca" },
+  { id: "ghe", label: "Ghe", key: "S", drum: "bayan", hand: "Left", file: assetUrl("assets/audio/ghe.wav"), glow: "#b8c0ff" },
+  { id: "ke", label: "Ke", key: "A", drum: "bayan", hand: "Left", file: assetUrl("assets/audio/ke.wav"), glow: "#f4845f" }
 ];
 
 const DEFAULT_BINDINGS = STROKES.reduce((map, stroke) => {
@@ -32,7 +34,7 @@ function TablaImage({ isBayanActive, isDayanActive }) {
       <div className={`drum-hit-glow left ${isBayanActive ? "is-active" : ""}`} />
       <div className={`drum-hit-glow right ${isDayanActive ? "is-active" : ""}`} />
       <img
-        src="/assets/images/tabla_transparent.png"
+        src={assetUrl("assets/images/tabla_transparent.png")}
         alt="Virtual tabla"
         className={`tabla-image ${isBayanActive ? "left-active" : ""} ${isDayanActive ? "right-active" : ""}`}
       />
@@ -60,7 +62,7 @@ function HomeScreen({ onStart }) {
 
       <div className="home-preview">
         <div className="preview-box">
-          <img src="/assets/images/tabla.webp" alt="Tabla preview" className="preview-image" />
+          <img src={assetUrl("assets/images/tabla.webp")} alt="Tabla preview" className="preview-image" />
         </div>
         <button type="button" className="start-button" onClick={onStart}>
           Start Playing
