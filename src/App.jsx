@@ -1,281 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import KeyEditorModal from "./components/KeyEditorModal";
+import RecordingsModal from "./components/RecordingsModal";
+import { DEFAULT_BINDINGS, STROKES } from "./constants";
 
-const assetUrl = (path) => `${import.meta.env.BASE_URL}${path}`;
-
-const STROKES = [
-  { id: "na", label: "Na", key: "M", drum: "dayan", hand: "Right", file: assetUrl("assets/audio/na.wav"), glow: "#f7b267" },
-  { id: "tin", label: "Tin", key: "J", drum: "dayan", hand: "Right", file: assetUrl("assets/audio/tin.wav"), glow: "#9cc5a1" },
-  { id: "te", label: "Te", key: "L", drum: "dayan", hand: "Right", file: assetUrl("assets/audio/te.wav"), glow: "#7fb7be" },
-  { id: "tte", label: "Tte", key: "K", drum: "dayan", hand: "Right", file: assetUrl("assets/audio/tte.wav"), glow: "#f6bd60" },
-  { id: "ge", label: "Ge", key: "X", drum: "bayan", hand: "Left", file: assetUrl("assets/audio/ge.wav"), glow: "#d8a7ca" },
-  { id: "ghe", label: "Ghe", key: "S", drum: "bayan", hand: "Left", file: assetUrl("assets/audio/ghe.wav"), glow: "#b8c0ff" },
-  { id: "ke", label: "Ke", key: "A", drum: "bayan", hand: "Left", file: assetUrl("assets/audio/ke.wav"), glow: "#f4845f" }
-];
-
-const DEFAULT_BINDINGS = STROKES.reduce((map, stroke) => {
-  map[stroke.id] = stroke.key;
-  return map;
-}, {});
-
-function formatDuration(ms) {
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
-  const seconds = String(totalSeconds % 60).padStart(2, "0");
-  return `${minutes}:${seconds}`;
-}
-
-function TablaImage({ isBayanActive, isDayanActive, sparkleBursts }) {
-  return (
-    <div className="tabla-image-stage">
-      <div className={`drum-hit-glow left ${isBayanActive ? "is-active" : ""}`} />
-      <div className={`drum-hit-glow right ${isDayanActive ? "is-active" : ""}`} />
-      <div className="sparkle-layer" aria-hidden="true">
-        {sparkleBursts.map((sparkle) => (
-          <span
-            key={sparkle.id}
-            className={`sparkle-bol ${sparkle.side}`}
-            style={{
-              "--sparkle-x": `${sparkle.xOffset}px`,
-              "--sparkle-delay": `${sparkle.delay}ms`,
-              "--sparkle-rotate": `${sparkle.rotate}deg`,
-              "--sparkle-glow": sparkle.color
-            }}
-          >
-            <span className="sparkle-dot" />
-            <span className="sparkle-label">{sparkle.label}</span>
-          </span>
-        ))}
-      </div>
-      <img
-        src={assetUrl("assets/images/tabla_transparent.png")}
-        alt="Virtual tabla"
-        className={`tabla-image ${isBayanActive ? "left-active" : ""} ${isDayanActive ? "right-active" : ""}`}
-      />
-    </div>
-  );
-}
-
-function MobileNotice() {
-  return (
-    <section className="mobile-notice-screen">
-      <div className="mobile-notice-card">
-        <p className="eyebrow">Virtual Tabla</p>
-        <h1>This app works on desktop.</h1>
-        <p className="description">
-          The instrument is designed for keyboard play, so please open this site
-          on a laptop or desktop computer for the full experience.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function HomeScreen({ onStart }) {
-  return (
-    <section className="home-screen">
-      <div className="home-copy">
-        <p className="eyebrow">Virtual Tabla</p>
-        <h1>Play expressive tabla rhythms straight from your keyboard.</h1>
-        <p className="description">
-          This website turns your keyboard into a playable tabla instrument.
-          Strike right-hand and left-hand bols instantly, hear real recorded
-          samples, and practice in a calm stage-like interface built for both
-          desktop and mobile screens.
-        </p>
-        <p className="description secondary">
-          Press keys, tap pads, and watch the drums respond with motion that
-          matches each stroke. Your custom sample set is already wired in.
-        </p>
-      </div>
-
-      <div className="home-preview">
-        <div className="preview-box">
-          <img src={assetUrl("assets/images/tabla.webp")} alt="Tabla preview" className="preview-image" />
-        </div>
-        <button type="button" className="start-button" onClick={onStart}>
-          Start Playing
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function KeyEditorModal({ draftBindings, duplicateKeys, onChange, onClose, onSave, error }) {
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="key-editor-modal" onClick={(event) => event.stopPropagation()}>
-        <div className="modal-scroll-area">
-          <div className="modal-header">
-            <div>
-              <p className="eyebrow modal-eyebrow">Edit Keys</p>
-              <h2>Customize your keyboard mapping</h2>
-            </div>
-            <button type="button" className="ghost-button" onClick={onClose}>
-              Close
-            </button>
-          </div>
-
-          <div className="modal-grid">
-            {STROKES.map((stroke) => {
-              const currentKey = draftBindings[stroke.id] || "";
-              const hasDuplicate = currentKey && duplicateKeys.has(currentKey);
-
-              return (
-                <label key={stroke.id} className={`key-editor-row ${hasDuplicate ? "has-duplicate" : ""}`}>
-                  <span className="editor-stroke-meta">
-                    <strong>{stroke.label}</strong>
-                    <small>{stroke.hand} hand</small>
-                  </span>
-                  <input
-                    className={`key-input ${hasDuplicate ? "is-duplicate" : ""}`}
-                    type="text"
-                    inputMode="text"
-                    maxLength={1}
-                    value={currentKey}
-                    onChange={(event) => onChange(stroke.id, event.target.value)}
-                  />
-                </label>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="modal-footer">
-          {error ? <p className="modal-error">{error}</p> : <div />}
-          <div className="modal-actions">
-            <button type="button" className="ghost-button" onClick={() => onChange(null, DEFAULT_BINDINGS)}>
-              Reset
-            </button>
-            <button type="button" className="start-button modal-save" onClick={onSave}>
-              Save Keys
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RecordingPlayer({ src }) {
-  const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) {
-      return undefined;
-    }
-
-    const onLoaded = () => setDuration(audio.duration || 0);
-    const onTime = () => setCurrentTime(audio.currentTime || 0);
-    const onEnded = () => setIsPlaying(false);
-
-    audio.addEventListener("loadedmetadata", onLoaded);
-    audio.addEventListener("timeupdate", onTime);
-    audio.addEventListener("ended", onEnded);
-
-    return () => {
-      audio.pause();
-      audio.removeEventListener("loadedmetadata", onLoaded);
-      audio.removeEventListener("timeupdate", onTime);
-      audio.removeEventListener("ended", onEnded);
-    };
-  }, [src]);
-
-  const togglePlayback = () => {
-    const audio = audioRef.current;
-    if (!audio) {
-      return;
-    }
-
-    if (audio.paused) {
-      audio.play().then(() => setIsPlaying(true)).catch(() => {});
-      return;
-    }
-
-    audio.pause();
-    setIsPlaying(false);
-  };
-
-  const onSeek = (event) => {
-    const audio = audioRef.current;
-    if (!audio) {
-      return;
-    }
-
-    const nextTime = Number(event.target.value);
-    audio.currentTime = nextTime;
-    setCurrentTime(nextTime);
-  };
-
-  return (
-    <div className="recording-player">
-      <audio ref={audioRef} src={src} preload="metadata" />
-      <button type="button" className="player-play-button" onClick={togglePlayback} aria-label={isPlaying ? "Pause recording" : "Play recording"}>
-        {isPlaying ? "||" : ">"}
-      </button>
-      <input
-        type="range"
-        min="0"
-        max={duration || 0}
-        step="0.01"
-        value={Math.min(currentTime, duration || 0)}
-        onChange={onSeek}
-        className="player-progress"
-        aria-label="Recording progress"
-      />
-    </div>
-  );
-}
-
-function RecordingsModal({ recordings, onClose }) {
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="recordings-modal" onClick={(event) => event.stopPropagation()}>
-        <div className="modal-header recordings-header">
-          <div>
-            <p className="eyebrow modal-eyebrow">Session Recordings</p>
-            <h2>Captured takes</h2>
-          </div>
-          <button type="button" className="ghost-button" onClick={onClose}>
-            Close
-          </button>
-        </div>
-
-        <div className="recordings-list">
-          {recordings.length ? (
-            recordings.map((recording) => (
-              <div key={recording.id} className="recording-row">
-                <div>
-                  <strong>{recording.name}</strong>
-                  <p>{formatDuration(recording.durationMs)}</p>
-                </div>
-                <div className="recording-actions">
-                  <RecordingPlayer src={recording.url} />
-                  <a href={recording.url} download={recording.fileName} className="ghost-button recording-download">
-                    Download
-                  </a>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="recordings-empty">
-              <p>No recordings yet in this session.</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+const HomeScreen = lazy(() => import("./pages/HomeScreen"));
+const DesktopPlayer = lazy(() => import("./pages/DesktopPlayer"));
+const MobilePlayer = lazy(() => import("./pages/MobilePlayer"));
 
 function App() {
   const [activeStrokeIds, setActiveStrokeIds] = useState([]);
   const [sparkleBursts, setSparkleBursts] = useState([]);
   const [started, setStarted] = useState(false);
-  const [isMobileBlocked, setIsMobileBlocked] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
   const [keyBindings, setKeyBindings] = useState(DEFAULT_BINDINGS);
   const [draftBindings, setDraftBindings] = useState(DEFAULT_BINDINGS);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -301,12 +38,21 @@ function App() {
     [keyBindings]
   );
 
-  const keyMap = useMemo(() => {
-    return strokesWithBindings.reduce((map, stroke) => {
+  const strokesById = useMemo(
+    () => strokesWithBindings.reduce((map, stroke) => {
+      map[stroke.id] = stroke;
+      return map;
+    }, {}),
+    [strokesWithBindings]
+  );
+
+  const keyMap = useMemo(
+    () => strokesWithBindings.reduce((map, stroke) => {
       map[stroke.key.toLowerCase()] = stroke;
       return map;
-    }, {});
-  }, [strokesWithBindings]);
+    }, {}),
+    [strokesWithBindings]
+  );
 
   const duplicateDraftKeys = useMemo(() => {
     const counts = Object.values(draftBindings).reduce((map, key) => {
@@ -323,20 +69,31 @@ function App() {
 
   useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 900px), (pointer: coarse)");
+    const landscapeQuery = window.matchMedia("(orientation: landscape)");
     const userAgentBlocked = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
-    const updateBlockedState = () => {
-      setIsMobileBlocked(mobileQuery.matches || userAgentBlocked);
+    const updateDeviceState = () => {
+      setIsMobileDevice(mobileQuery.matches || userAgentBlocked);
+      setIsLandscape(landscapeQuery.matches);
     };
 
-    updateBlockedState();
+    updateDeviceState();
+
     if (mobileQuery.addEventListener) {
-      mobileQuery.addEventListener("change", updateBlockedState);
-      return () => mobileQuery.removeEventListener("change", updateBlockedState);
+      mobileQuery.addEventListener("change", updateDeviceState);
+      landscapeQuery.addEventListener("change", updateDeviceState);
+      return () => {
+        mobileQuery.removeEventListener("change", updateDeviceState);
+        landscapeQuery.removeEventListener("change", updateDeviceState);
+      };
     }
 
-    mobileQuery.addListener(updateBlockedState);
-    return () => mobileQuery.removeListener(updateBlockedState);
+    mobileQuery.addListener(updateDeviceState);
+    landscapeQuery.addListener(updateDeviceState);
+    return () => {
+      mobileQuery.removeListener(updateDeviceState);
+      landscapeQuery.removeListener(updateDeviceState);
+    };
   }, []);
 
   useEffect(() => {
@@ -371,7 +128,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!started) {
+    if (!started || isMobileDevice) {
       return undefined;
     }
 
@@ -391,7 +148,7 @@ function App() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [started, isEditorOpen, keyMap]);
+  }, [started, isEditorOpen, isMobileDevice, keyMap]);
 
   const ensureAudioPipeline = async () => {
     if (audioContextRef.current && mediaDestinationRef.current) {
@@ -448,6 +205,10 @@ function App() {
   };
 
   const playStroke = async (stroke) => {
+    if (!stroke) {
+      return;
+    }
+
     const audio = audioRefs.current.get(stroke.id);
     await ensureAudioPipeline();
 
@@ -465,6 +226,17 @@ function App() {
     }, 180);
 
     releaseTimers.current.set(stroke.id, timer);
+  };
+
+  const handleStart = async () => {
+    setStarted(true);
+    if (isMobileDevice && screen.orientation?.lock) {
+      try {
+        await screen.orientation.lock("landscape");
+      } catch {
+        // Browsers often block orientation lock unless installed/fullscreen.
+      }
+    }
   };
 
   const openEditor = () => {
@@ -603,130 +375,53 @@ function App() {
     (stroke) => stroke.drum === "dayan" && activeStrokeIds.includes(stroke.id)
   );
 
-  if (isMobileBlocked) {
-    return (
-      <main className="app-shell">
-        <div className="ambient ambient-left" />
-        <div className="ambient ambient-right" />
-        <MobileNotice />
-      </main>
-    );
-  }
-
-  if (!started) {
-    return (
-      <main className="app-shell">
-        <div className="ambient ambient-left" />
-        <div className="ambient ambient-right" />
-        <HomeScreen onStart={() => setStarted(true)} />
-      </main>
-    );
-  }
-
   return (
     <main className="app-shell play-mode">
       <div className="ambient ambient-left" />
       <div className="ambient ambient-right" />
 
-      <section className="player-screen">
-        <div className="player-topbar">
-          <div className="topbar-brand">
-            <button type="button" className="ghost-button back-icon-button" onClick={() => setStarted(false)}>
-              &lt;
-            </button>
-            <span className="brand-mark">Virtual Tabla</span>
-          </div>
-          <button type="button" className="ghost-button edit-keys-button" onClick={openEditor}>
-            Edit Keys
-          </button>
-        </div>
-
-        <div className="player-layout">
-          <div className="stroke-column left-column">
-            <h2>Left Hand</h2>
-            <p>Bayan on the left</p>
-            <div className="stroke-list">
-              {leftStrokes.map((stroke) => (
-                <button
-                  key={stroke.id}
-                  type="button"
-                  className={`key-pill ${activeStrokeIds.includes(stroke.id) ? "pressed" : ""}`}
-                  onMouseDown={() => playStroke(stroke)}
-                  onTouchStart={() => playStroke(stroke)}
-                >
-                  <span className="keycap">{stroke.key}</span>
-                  <span className="stroke-meta">
-                    <strong>{stroke.label}</strong>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="instrument-stage">
-            <div className={`stage-surface ${activeStrokeIds.length ? "pulse" : ""}`}>
-              <TablaImage
-                isBayanActive={isBayanActive}
-                isDayanActive={isDayanActive}
-                sparkleBursts={sparkleBursts}
-              />
-            </div>
-          </div>
-
-          <div className="stroke-column right-column">
-            <h2>Right Hand</h2>
-            <p>Dayan on the right</p>
-            <div className="stroke-list">
-              {rightStrokes.map((stroke) => (
-                <button
-                  key={stroke.id}
-                  type="button"
-                  className={`key-pill ${activeStrokeIds.includes(stroke.id) ? "pressed" : ""}`}
-                  onMouseDown={() => playStroke(stroke)}
-                  onTouchStart={() => playStroke(stroke)}
-                >
-                  <span className="keycap">{stroke.key}</span>
-                  <span className="stroke-meta">
-                    <strong>{stroke.label}</strong>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="player-footer">
-          <p className="play-tip">Tip: press ge + na together to play dha.</p>
-
-          <div className="player-actions">
-            <button
-              type="button"
-              className={`session-button record-button ${isRecording ? "is-recording" : ""}`}
-              onClick={toggleRecording}
-              disabled={!supportsRecording}
-            >
-              <span className="record-main">
-                <span className="record-icon" />
-                <span>{isRecording ? "Stop" : "Record"}</span>
-              </span>
-              {isRecording ? <span className="record-timer">{formatDuration(recordingMs)}</span> : null}
-            </button>
-
-            <button
-              type="button"
-              className="session-button view-recordings-button"
-              onClick={() => setIsRecordingsOpen(true)}
-            >
-              <span>View Recordings</span>
-              <span className="recordings-count">{recordings.length}</span>
-            </button>
-          </div>
-
-          <p className="made-by">made by Angshul</p>
-        </div>
-
-        {recordingError ? <p className="recording-error">{recordingError}</p> : null}
-      </section>
+      <Suspense fallback={<div className="app-loading" />}>
+        {!started ? (
+          <HomeScreen onStart={handleStart} />
+        ) : isMobileDevice ? (
+          <MobilePlayer
+            activeStrokeIds={activeStrokeIds}
+            isBayanActive={isBayanActive}
+            isDayanActive={isDayanActive}
+            sparkleBursts={sparkleBursts}
+            isRecording={isRecording}
+            recordingMs={recordingMs}
+            supportsRecording={supportsRecording}
+            recordings={recordings}
+            recordingError={recordingError}
+            isLandscape={isLandscape}
+            strokesById={strokesById}
+            onBack={() => setStarted(false)}
+            onToggleRecording={toggleRecording}
+            onOpenRecordings={() => setIsRecordingsOpen(true)}
+            onStrike={playStroke}
+          />
+        ) : (
+          <DesktopPlayer
+            activeStrokeIds={activeStrokeIds}
+            isBayanActive={isBayanActive}
+            isDayanActive={isDayanActive}
+            sparkleBursts={sparkleBursts}
+            leftStrokes={leftStrokes}
+            rightStrokes={rightStrokes}
+            isRecording={isRecording}
+            recordingMs={recordingMs}
+            supportsRecording={supportsRecording}
+            recordings={recordings}
+            recordingError={recordingError}
+            onBack={() => setStarted(false)}
+            onOpenEditor={openEditor}
+            onToggleRecording={toggleRecording}
+            onOpenRecordings={() => setIsRecordingsOpen(true)}
+            onStrike={playStroke}
+          />
+        )}
+      </Suspense>
 
       {isEditorOpen ? (
         <KeyEditorModal

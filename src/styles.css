@@ -759,6 +759,197 @@ h2 {
   min-width: 160px;
 }
 
+.mobile-player-screen {
+  position: relative;
+  z-index: 1;
+  height: calc(100vh - 48px);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  padding: 6px 8px 0;
+}
+
+.mobile-topbar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 6px;
+  z-index: 5;
+}
+
+.mobile-topbar .ghost-button {
+  width: auto;
+}
+
+.mobile-player-shell {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 6px 12px;
+}
+
+.mobile-bol-cluster {
+  position: relative;
+  width: 168px;
+  height: 240px;
+  z-index: 3;
+}
+
+.mobile-bol-cluster-left {
+  justify-self: start;
+}
+
+.mobile-bol-cluster-right {
+  justify-self: end;
+  width: 176px;
+  height: 232px;
+}
+
+.mobile-bol-button {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 250, 242, 0.18);
+  background: radial-gradient(circle at 35% 30%, rgba(255, 250, 242, 0.18), rgba(255, 250, 242, 0.05));
+  color: #fff7ea;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.2);
+  transition:
+    transform 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.mobile-bol-button.is-active,
+.mobile-bol-button:hover {
+  transform: translateY(-2px) scale(1.04);
+  border-color: rgba(255, 223, 187, 0.34);
+  background: radial-gradient(circle at 35% 30%, rgba(255, 237, 210, 0.28), rgba(231, 144, 78, 0.12));
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.24);
+}
+
+.mobile-bol-cluster-left .left-top {
+  top: 0;
+  left: 48px;
+}
+
+.mobile-bol-cluster-left .left-middle {
+  bottom: 8px;
+  left: 0;
+}
+
+.mobile-bol-cluster-left .left-bottom {
+  bottom: 8px;
+  right: 0;
+}
+
+.mobile-bol-cluster-right .right-tip {
+  top: 0;
+  left: 0;
+}
+
+.mobile-bol-cluster-right .right-top {
+  top: 0;
+  right: 0;
+}
+
+.mobile-bol-cluster-right .right-middle {
+  bottom: 0;
+  left: 0;
+}
+
+.mobile-bol-cluster-right .right-bottom {
+  bottom: 0;
+  right: 0;
+}
+
+.mobile-center-stage {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mobile-stage-surface {
+  width: min(100%, 460px);
+  height: min(58vh, 340px);
+  padding: 22px 12px 18px;
+  border-radius: 30px;
+}
+
+.mobile-stage-surface::after {
+  inset: auto 12% 20px;
+  height: 20px;
+}
+
+.mobile-stage-surface .tabla-image-stage {
+  width: min(100%, 500px);
+}
+
+.rotate-notice {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  width: min(100%, 560px);
+  margin: auto;
+  padding: 36px;
+  border-radius: 30px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 22%),
+    var(--panel);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.rotate-notice .description {
+  margin-top: 10px;
+}
+
+.mobile-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  z-index: 4;
+}
+
+.mobile-controls .session-button {
+  min-width: 152px;
+  height: 42px;
+  padding: 0 14px;
+  font-size: 0.88rem;
+}
+
+.mobile-controls .record-main {
+  gap: 8px;
+}
+
+.mobile-controls .record-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.mobile-controls .record-button.is-recording {
+  min-width: 212px;
+}
+
+.mobile-controls .recordings-count {
+  min-width: 22px;
+  height: 22px;
+  font-size: 0.74rem;
+}
 @keyframes stagePulse {
   0% {
     transform: scale(0.992);
@@ -914,5 +1105,17 @@ h2 {
   .record-button.is-recording {
     width: 100%;
   }
+
+  .mobile-topbar .ghost-button,
+  .mobile-controls .session-button,
+  .mobile-controls .record-button.is-recording {
+    width: auto;
+  }
 }
+
+
+
+
+
+
 
